@@ -5,14 +5,14 @@ log_config = dict(
     interval=50,
     hooks=[
         dict(type='TextLoggerHook'),
-        # dict(type='TensorboardLoggerHook')
-        # dict(type='WandbLoggerHook',
-        #  init_kwargs={
-        #     'project': 'mmdetection',
-        #     'entity': 'godkimyoungju',
-        #     'name': 'swin'
-        #     }
-        # )
+        # dict(type='TensorboardLoggerHook'),
+        dict(type='WandbLoggerHook',
+         init_kwargs={
+            'project': 'mmdetection',
+            'entity': 'godkimyoungju',
+            'name': 'faster_rcnn_r50_adamwlrwd'
+            }
+        )
     ])
 # yapf:enable
 custom_hooks = [dict(type='NumClassCheckHook')]
