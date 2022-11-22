@@ -10,7 +10,7 @@ log_config = dict(
          init_kwargs={
             'project': 'mmdetection',
             'entity': 'godkimyoungju',
-            'name': 'faster_rcnn_r50_adamwlrwd'
+            'name': 'swin_lrwd'
             }
         )
     ])
