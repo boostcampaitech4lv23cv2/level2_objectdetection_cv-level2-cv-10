@@ -10,7 +10,7 @@ log_config = dict(
          init_kwargs={
             'project': 'mmdetection',
             'entity': 'godkimyoungju',
-            'name': 'swin'
+            'name': 'swin_fpn_wd_lrcfg'
             }
         )
     ])
