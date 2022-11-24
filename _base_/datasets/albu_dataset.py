@@ -5,7 +5,8 @@ img_norm_cfg = dict(
     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
 classes = ("General trash", "Paper", "Paper pack", "Metal", "Glass", 
            "Plastic", "Styrofoam", "Plastic bag", "Battery", "Clothing")
-
+min_size, max_size = 512, 1024
+multi_scale = [(x,x) for x in range(min_size, max_size+1, 64)]
 albu_train_transforms=[
     dict(
     type='OneOf',
@@ -49,7 +50,7 @@ albu_train_transforms=[
 train_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(type='LoadAnnotations', with_bbox=True),
-    dict(type='Resize', img_scale=(512, 512), keep_ratio=True),
+    dict(type='Resize', img_scale=multi_scale, multiscale_mode='value', keep_ratio=True),
     dict(type='Pad', size_divisor=32),
     dict(
         type='Albu',
