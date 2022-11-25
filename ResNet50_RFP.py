@@ -33,25 +33,10 @@ model = dict(
             style='pytorch'))
 )
 
-optimizer = dict(
-    _delete_=True,
-    type='AdamW',
-    lr=0.0001,
-    betas=(0.9, 0.999),
-    weight_decay= 0.05,
-    paramwise_cfg=dict(
-        custom_keys={
-            'absolute_pos_embed': dict(decay_mult=0.),
-            'relative_position_bias_table': dict(decay_mult=0.),
-            'norm': dict(decay_mult=0.)
-        }))
+lr_config = dict(step=[8, 11])
 
-lr_config = dict(
-    _delete_=True,
-    policy='CosineAnnealing',
-    warmup='linear',
-    warmup_iters=20,
-    warmup_ratio=1.0 / 10,
-    min_lr_ratio=1e-5)
+optimizer = dict(type='SGD', lr=0.005, momentum=0.9, weight_decay=0.0001)
+optimizer_config = dict(
+    _delete_=True, grad_clip=dict(max_norm=35, norm_type=2))
     
-runner = dict(max_epochs=40)
+runner = dict(max_epochs=36)

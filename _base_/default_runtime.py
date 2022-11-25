@@ -10,7 +10,7 @@ log_config = dict(
          init_kwargs={
             'project': 'mmdetection',
             'entity': 'godkimyoungju',
-            'name': 'resnet_rfp'
+            'name': 'cornernet'
             }
         )
     ])

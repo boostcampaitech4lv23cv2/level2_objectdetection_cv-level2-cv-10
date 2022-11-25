@@ -31,8 +31,8 @@ test_pipeline = [
 classes = ("General trash", "Paper", "Paper pack", "Metal", "Glass", 
            "Plastic", "Styrofoam", "Plastic bag", "Battery", "Clothing")
 data = dict(
-    samples_per_gpu=8,
-    workers_per_gpu=2,
+    samples_per_gpu=16,
+    workers_per_gpu=4,
     train=dict(
         type=dataset_type,
         ann_file=data_root + 'fold_0_train.json',
@@ -51,4 +51,5 @@ data = dict(
         img_prefix=data_root,
         classes=classes,
         pipeline=test_pipeline))
-evaluation = dict(interval=1, metric='bbox')
+
+evaluation = dict(interval=1, metric='bbox', save_best='bbox_mAP')
