@@ -1,5 +1,5 @@
 _base_=[
-    './_base_/datasets/coco_detection_aug.py',
+    './_base_/datasets/albu_mosaic_dataset.py',
     './_base_/models/faster_rcnn_r50_fpn.py',
     './_base_/schedules/schedule_1x.py',
     './_base_/default_runtime.py'
@@ -28,17 +28,18 @@ model = dict(
         init_cfg=dict(type='Pretrained', checkpoint=pretrained)),
     neck=dict(in_channels=[96, 192, 384, 768]))     # swin으로 바꿀 시 바꿔준 것!
 
-optimizer = dict(
-    _delete_=True,
-    type='AdamW',
-    lr=0.0001,
-    betas=(0.9, 0.999),
-    weight_decay=0.05,
-    paramwise_cfg=dict(
-        custom_keys={
-            'absolute_pos_embed': dict(decay_mult=0.),
-            'relative_position_bias_table': dict(decay_mult=0.),
-            'norm': dict(decay_mult=0.)
-        }))
+# optimizer = dict(
+#     _delete_=True,
+#     type='AdamW',
+#     lr=0.0001,
+#     betas=(0.9, 0.999),
+#     weight_decay=0.05,
+#     paramwise_cfg=dict(
+#         custom_keys={
+#             'absolute_pos_embed': dict(decay_mult=0.),
+#             'relative_position_bias_table': dict(decay_mult=0.),
+#             'norm': dict(decay_mult=0.)
+#         }))
+optimizer = dict(type='SGD', lr=0.005, momentum=0.9, weight_decay=0.0001)
 lr_config = dict(warmup_iters=1000, step=[8, 11])
 runner = dict(max_epochs=12)

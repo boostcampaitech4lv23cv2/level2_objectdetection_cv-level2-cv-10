@@ -97,7 +97,7 @@ train_dataset = dict(
     type='MultiImageMixDataset',
     dataset=dict(
         type=dataset_type,
-        ann_file=data_root + 'fold_0_remove_train.json',
+        ann_file=data_root + 'fold_0_train.json',
         img_prefix=data_root,
         classes=classes,
         pipeline=[
@@ -124,4 +124,5 @@ data = dict(
         img_prefix=data_root,
         classes=classes,
         pipeline=test_pipeline))
-evaluation = dict(interval=1, metric='bbox')
+# evaluation = dict(interval=1, metric='bbox')
+evaluation = dict(interval=1, metric='bbox', save_best='bbox_mAP')
