@@ -6,7 +6,8 @@ img_norm_cfg = dict(
 classes = ("General trash", "Paper", "Paper pack", "Metal", "Glass", 
            "Plastic", "Styrofoam", "Plastic bag", "Battery", "Clothing")
 min_size, max_size = 512, 1024
-multi_scale = [(x,x) for x in range(min_size, max_size+1, 64)]
+multi_scale = [(x, x) for x in range(min_size, max_size+1, 64)]
+multi_scale_l = [(512, 512), (768, 768), (1024, 1024)]
 albu_train_transforms=[
     dict(
     type='OneOf',
@@ -50,7 +51,7 @@ albu_train_transforms=[
 train_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(type='LoadAnnotations', with_bbox=True),
-    dict(type='Resize', img_scale=multi_scale, multiscale_mode='value', keep_ratio=True),
+    dict(type='Resize', img_scale=multi_scale_l, multiscale_mode='value', keep_ratio=True),
     dict(type='Pad', size_divisor=32),
     dict(
         type='Albu',
@@ -82,10 +83,10 @@ test_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(
         type='MultiScaleFlipAug',
-        img_scale=(512, 512),
+        img_scale=multi_scale_l,
         flip=False,
         transforms=[
-            dict(type='Resize', keep_ratio=True),
+            dict(type='Resize', img_scale=multi_scale_l, multiscale_mode='value', keep_ratio=True),
             dict(type='RandomFlip'),
             dict(type='Normalize', **img_norm_cfg),
             dict(type='Pad', size_divisor=32),
@@ -95,11 +96,11 @@ test_pipeline = [
 ]
 
 data = dict(
-    samples_per_gpu=8,
+    samples_per_gpu=2,
     workers_per_gpu=2,
     train=dict(
         type=dataset_type,
-        ann_file=data_root + 'fold_0_remove_train.json',
+        ann_file=data_root + 'train_new.json',
         img_prefix=data_root,
         classes=classes,
         pipeline=train_pipeline),
@@ -115,4 +116,4 @@ data = dict(
         img_prefix=data_root,
         classes=classes,
         pipeline=test_pipeline))
-evaluation = dict(interval=1, metric='bbox')
+evaluation = dict(interval=1, metric='bbox', save_best='bbox_mAP')
