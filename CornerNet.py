@@ -1,8 +1,11 @@
 _base_ = [
-    './_base_/datasets/coco_detection.py',
+    './_base_/datasets/MyAlbum_Pipeline.py',
     './_base_/default_runtime.py',
     './_base_/schedules/schedule_1x.py'
 ]
+
+data = dict(samples_per_gpu=4)
+auto_scale_lr = dict(enable=False, base_batch_size=8)
 
 # model settings
 model = dict(
@@ -38,78 +41,33 @@ model = dict(
         max_per_img=100,
         nms=dict(type='soft_nms', iou_threshold=0.5, method='gaussian')))
 
-
-# data settings
-img_norm_cfg = dict(
-    mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
-train_pipeline = [
-    dict(type='LoadImageFromFile', to_float32=True),
-    dict(type='LoadAnnotations', with_bbox=True),
-    dict(
-        type='PhotoMetricDistortion',
-        brightness_delta=32,
-        contrast_range=(0.5, 1.5),
-        saturation_range=(0.5, 1.5),
-        hue_delta=18),
-    dict(
-        type='RandomCenterCropPad',
-        crop_size=(511, 511),
-        ratios=(0.6, 0.7, 0.8, 0.9, 1.0, 1.1, 1.2, 1.3),
-        test_mode=False,
-        test_pad_mode=None,
-        **img_norm_cfg),
-    dict(type='Resize', img_scale=(511, 511), keep_ratio=False),
-    dict(type='RandomFlip', flip_ratio=0.5),
-    dict(type='Normalize', **img_norm_cfg),
-    dict(type='DefaultFormatBundle'),
-    dict(type='Collect', keys=['img', 'gt_bboxes', 'gt_labels']),
-]
-test_pipeline = [
-    dict(type='LoadImageFromFile', to_float32=True),
-    dict(
-        type='MultiScaleFlipAug',
-        scale_factor=1.0,
-        flip=True,
-        transforms=[
-            dict(type='Resize'),
-            dict(
-                type='RandomCenterCropPad',
-                crop_size=None,
-                ratios=None,
-                # border=None,
-                test_mode=True,
-                test_pad_mode=['logical_or', 127],
-                **img_norm_cfg),
-            dict(type='RandomFlip'),
-            dict(type='Normalize', **img_norm_cfg),
-            dict(type='ImageToTensor', keys=['img']),
-            dict(
-                type='Collect',
-                keys=['img'],
-                meta_keys=('filename', 'ori_shape', 'img_shape', 'pad_shape',
-                           'scale_factor', 'flip', 'img_norm_cfg', 'border')),
-        ])
-]
-data = dict(
-    samples_per_gpu=6,
-    workers_per_gpu=3,
-    train=dict(pipeline=train_pipeline),
-    val=dict(pipeline=test_pipeline),
-    test=dict(pipeline=test_pipeline))
 # optimizer
-optimizer = dict(type='SGD', lr=0.02, momentum=0.9, weight_decay=0.0001)
+optimizer = dict(
+    _delete_=True,
+    type='AdamW',
+    lr=0.0001,
+    betas=(0.9, 0.999),
+    weight_decay= 0.01,
+    paramwise_cfg=dict(
+        custom_keys={
+            'absolute_pos_embed': dict(decay_mult=0.),
+            'relative_position_bias_table': dict(decay_mult=0.),
+            'norm': dict(decay_mult=0.)
+        }))
 
-optimizer_config = dict(_delete_=True, grad_clip=dict(max_norm=35, norm_type=2))
-# learning policy
 lr_config = dict(
-    policy='step',
+    _delete_=True,
+    policy='CosineAnnealing',
     warmup='linear',
-    warmup_iters=500,
-    warmup_ratio=1.0 / 3,
-    step=[180])
-runner = dict(type='EpochBasedRunner', max_epochs=210)
+    warmup_iters=1000,
+    warmup_ratio=1.0 / 10,
+    min_lr_ratio=1e-5)
 
-# NOTE: `auto_scale_lr` is for automatically scaling LR,
-# USER SHOULD NOT CHANGE ITS VALUES.
-# base_batch_size = (8 GPUs) x (6 samples per GPU)
-auto_scale_lr = dict(base_batch_size=48)
+optimizer_config = dict(
+    _delete_=True, grad_clip=dict(max_norm=35, norm_type=2))
+
+runner = dict(max_epochs=30)
+checkpoint_config = dict(interval=10)
+
+# load_from = 'https://download.openmmlab.com/mmdetection/v2.0/cornernet/cornernet_hourglass104_mstest_10x5_210e_coco/cornernet_hourglass104_mstest_10x5_210e_coco_20200824_185720-5fefbf1c.pth'
+resume_from = '/opt/ml/baseline/mmdetection/work_dirs/CornerNet/best_bbox_mAP_epoch_19.pth'
