@@ -15,42 +15,26 @@ albu_train_transforms = [
         dict(type='HorizontalFlip',p=1.0),
         ],
         p=0.5),
-    dict(
-        type='ShiftScaleRotate',
-        shift_limit=0.0625,
-        scale_limit=0.0,
-        rotate_limit=10, 
-        interpolation=1,
-        p=0.3),
-    dict(
-        type='OneOf',
-        transforms=[
-            dict(type='ChannelDropout',p=0.5),
-            dict(type='ChannelShuffle', p=0.5)
-        ],
-        p=0.5),
-    dict(type='CLAHE',p=0.5),
-    dict(type='HueSaturationValue', hue_shift_limit=15, sat_shift_limit=25, val_shift_limit=10, p=0.5),
-    dict(type='GaussNoise', p=0.3),
-    dict(
-        type='OneOf',
-        transforms=[
-            dict(type='Blur', p=1.0),
-            dict(type='GaussianBlur', p=1.0),
-            dict(type='MedianBlur', blur_limit=5, p=1.0),
-            dict(type='MotionBlur', p=1.0)
-        ],
-        p=0.1),
+    # dict(
+    #     type='ShiftScaleRotate',
+    #     shift_limit=0.0625,
+    #     scale_limit=0.0,
+    #     rotate_limit=10, 
+    #     interpolation=1,
+    #     p=0.3),
     dict(
         type='RandomBrightnessContrast',
-        brightness_limit=[0.1, 0.3],
-        contrast_limit=[0.1, 0.3],
-        p=0.2),
+        brightness_limit=[-0.1, 0.3],
+        contrast_limit=[-0.1, 0.3],
+        p=1),
+    dict(
+        type='CLAHE',
+        p=1)
 ]
 train_pipeline = [
-    dict(type='Mosaic', img_scale=img_scale, pad_val=0),
-    dict(type='MixUp', img_scale=img_scale, pad_val=0),
-    dict(type='Pad', size_divisor=32),
+    # dict(type='Mosaic', img_scale=(1024, 1024), pad_val=0),
+    # dict(type='MixUp', img_scale=(1024, 1024), pad_val=0),
+    dict(type='Resize', img_scale=(512, 512), keep_ratio=True),
     dict(
         type='Albu',
         transforms=albu_train_transforms,
@@ -70,6 +54,7 @@ train_pipeline = [
     ),
     dict(type='RandomFlip', flip_ratio=0.5),
     dict(type='Normalize', **img_norm_cfg),
+    dict(type='Pad', size_divisor=32),
     dict(type='DefaultFormatBundle'),
     dict(
         type='Collect', 
@@ -97,7 +82,7 @@ train_dataset = dict(
     type='MultiImageMixDataset',
     dataset=dict(
         type=dataset_type,
-        ann_file=data_root + 'fold_0_train.json',
+        ann_file=data_root + 'fold_4_train.json',
         img_prefix=data_root,
         classes=classes,
         pipeline=[
@@ -114,7 +99,7 @@ data = dict(
     train=train_dataset,
     val=dict(
         type=dataset_type,
-        ann_file=data_root + 'fold_0_val.json',
+        ann_file=data_root + 'fold_4_val.json',
         img_prefix=data_root,
         classes=classes,
         pipeline=test_pipeline),

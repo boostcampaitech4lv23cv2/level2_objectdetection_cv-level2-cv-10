@@ -1,18 +1,21 @@
 import wandb
-checkpoint_config = dict(interval=1)
+checkpoint_config = dict(interval=3)
 # yapf:disable
 log_config = dict(
     interval=50,
     hooks=[
         dict(type='TextLoggerHook'),
         # dict(type='TensorboardLoggerHook')
-        dict(type='WandbLoggerHook',
-         init_kwargs={
-            'project': 'mmdetection',
-            'entity': 'godkimyoungju',
-            'name': 'cascade_rcnn_convnext-s_p4_w7_fpn_giou_4conv1f_fp16_ms-crop_3x_coco'
-            }
-        )
+        dict(type='MMDetWandbHook',
+            init_kwargs={
+                'project': 'mmdetection',
+                'entity': 'godkym',
+                'name': 'cascade_rcnn_convnext-s_fpn_aug_v2_3x_pre_nb'
+            },
+            log_checkpoint=True,
+            log_checkpoint_metadata=True,
+            num_eval_images=100,
+            bbox_score_thr=0.3)
     ])
 # yapf:enable
 custom_hooks = [dict(type='NumClassCheckHook')]
@@ -33,3 +36,5 @@ mp_start_method = 'fork'
 #       or not by default.
 #   - `base_batch_size` = (8 GPUs) x (2 samples per GPU).
 auto_scale_lr = dict(enable=False, base_batch_size=16)
+
+load_from = 'https://download.openmmlab.com/mmdetection/v2.0/convnext/cascade_mask_rcnn_convnext-s_p4_w7_fpn_giou_4conv1f_fp16_ms-crop_3x_coco/cascade_mask_rcnn_convnext-s_p4_w7_fpn_giou_4conv1f_fp16_ms-crop_3x_coco_20220510_201004-3d24f5a4.pth'

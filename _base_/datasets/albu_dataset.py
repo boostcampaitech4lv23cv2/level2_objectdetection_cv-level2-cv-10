@@ -1,13 +1,13 @@
 # dataset settings
 dataset_type = 'CocoDataset'
 data_root = '../../dataset/'
-classes = ("General trash", "Paper", "Paper pack", "Metal", "Glass", 
-           "Plastic", "Styrofoam", "Plastic bag", "Battery", "Clothing")
-img_scale=(512, 512)
 img_norm_cfg = dict(
     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
-
-albu_train_transforms = [
+classes = ("General trash", "Paper", "Paper pack", "Metal", "Glass", 
+           "Plastic", "Styrofoam", "Plastic bag", "Battery", "Clothing")
+min_size, max_size = 512, 1024
+multi_scale = [(x,x) for x in range(min_size, max_size+1, 64)]
+albu_train_transforms=[
     dict(
     type='OneOf',
     transforms=[
@@ -48,8 +48,9 @@ albu_train_transforms = [
         p=0.2),
 ]
 train_pipeline = [
-    dict(type='Mosaic', img_scale=img_scale, pad_val=0),
-    dict(type='MixUp', img_scale=img_scale, pad_val=0),
+    dict(type='LoadImageFromFile'),
+    dict(type='LoadAnnotations', with_bbox=True),
+    dict(type='Resize', img_scale=multi_scale, multiscale_mode='value', keep_ratio=True),
     dict(type='Pad', size_divisor=32),
     dict(
         type='Albu',
@@ -93,25 +94,15 @@ test_pipeline = [
         ])
 ]
 
-train_dataset = dict(
-    type='MultiImageMixDataset',
-    dataset=dict(
+data = dict(
+    samples_per_gpu=8,
+    workers_per_gpu=2,
+    train=dict(
         type=dataset_type,
         ann_file=data_root + 'fold_0_train.json',
         img_prefix=data_root,
         classes=classes,
-        pipeline=[
-            dict(type='LoadImageFromFile'),
-            dict(type='LoadAnnotations', with_bbox=True)
-        ],
-        filter_empty_gt=False,
-    ),
-    pipeline=train_pipeline
-    )
-data = dict(
-    samples_per_gpu=2,
-    workers_per_gpu=2,
-    train=train_dataset,
+        pipeline=train_pipeline),
     val=dict(
         type=dataset_type,
         ann_file=data_root + 'fold_0_val.json',
