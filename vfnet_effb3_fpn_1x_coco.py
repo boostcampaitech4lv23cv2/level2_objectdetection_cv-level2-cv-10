@@ -3,21 +3,25 @@ _base_ = [
     './_base_/schedules/schedule_1x.py', './_base_/default_runtime.py'
 ]
 # model settings
+checkpoint = 'https://download.openmmlab.com/mmclassification/v0/efficientnet/efficientnet-b3_3rdparty_8xb32-aa_in1k_20220119-5b4887a0.pth'  # noqa
 model = dict(
     type='VFNet',
     backbone=dict(
-        type='ResNet',
-        depth=50,
-        num_stages=4,
-        out_indices=(0, 1, 2, 3),
-        frozen_stages=1,
-        norm_cfg=dict(type='BN', requires_grad=True),
-        norm_eval=True,
-        style='pytorch',
-        init_cfg=dict(type='Pretrained', checkpoint='torchvision://resnet50')),
+        # _delete_=True,
+        type='EfficientNet',
+        arch='b3',
+        drop_path_rate=0.2,
+        out_indices=(3, 4, 5),
+        frozen_stages=0,
+        norm_cfg=dict(
+            type='BN', requires_grad=True, eps=1e-3, momentum=0.01),
+        norm_eval=False,
+        init_cfg=dict(
+            type='Pretrained', prefix='backbone', checkpoint=checkpoint)),
     neck=dict(
         type='FPN',
-        in_channels=[256, 512, 1024, 2048],
+        # in_channels=[256, 512, 1024, 2048],
+        in_channels = [48, 136, 384],
         out_channels=256,
         start_level=1,
         add_extra_convs='on_output',  # use P5
@@ -87,7 +91,7 @@ test_pipeline = [
         ])
 ]
 data = dict(
-    samples_per_gpu=16,
+    samples_per_gpu=6,
     workers_per_gpu=2,
     train=dict(pipeline=train_pipeline),
     val=dict(pipeline=test_pipeline),
@@ -125,5 +129,3 @@ lr_config = dict(
 #     warmup_ratio=1.0 / 10,
 #     min_lr_ratio=1e-5)
 runner = dict(type='EpochBasedRunner', max_epochs=20)
-
-load_from = "https://download.openmmlab.com/mmdetection/v2.0/vfnet/vfnet_r50_fpn_1x_coco/vfnet_r50_fpn_1x_coco_20201027-38db6f58.pth"

@@ -1,5 +1,4 @@
-import wandb
-checkpoint_config = dict(interval=1)
+checkpoint_config = dict(interval=2)
 # yapf:disable
 log_config = dict(
     interval=50,
@@ -9,8 +8,8 @@ log_config = dict(
         dict(type='WandbLoggerHook',
          init_kwargs={
             'project': 'mmdetection',
-            'entity': 'godkimyoungju',
-            'name': 'vfnet'
+            'entity': 'godkym',
+            'name': 'vfnet_r50_mdconv_fold4',
             }
         )
     ])

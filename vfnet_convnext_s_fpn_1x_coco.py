@@ -3,18 +3,20 @@ _base_ = [
     './_base_/schedules/schedule_1x.py', './_base_/default_runtime.py'
 ]
 # model settings
+checkpoint_file = 'https://download.openmmlab.com/mmclassification/v0/convnext/downstream/convnext-small_3rdparty_32xb128-noema_in1k_20220301-303e75e3.pth'  # noqa
 model = dict(
     type='VFNet',
     backbone=dict(
-        type='ResNet',
-        depth=50,
-        num_stages=4,
-        out_indices=(0, 1, 2, 3),
-        frozen_stages=1,
-        norm_cfg=dict(type='BN', requires_grad=True),
-        norm_eval=True,
-        style='pytorch',
-        init_cfg=dict(type='Pretrained', checkpoint='torchvision://resnet50')),
+        # _delete_=True,
+        type='mmcls.ConvNeXt',
+        arch='small',
+        out_indices=[0, 1, 2, 3],
+        drop_path_rate=0.6,
+        layer_scale_init_value=1.0,
+        gap_before_final_norm=False,
+        init_cfg=dict(
+            type='Pretrained', checkpoint=checkpoint_file,
+            prefix='backbone.')),
     neck=dict(
         type='FPN',
         in_channels=[256, 512, 1024, 2048],
@@ -125,5 +127,3 @@ lr_config = dict(
 #     warmup_ratio=1.0 / 10,
 #     min_lr_ratio=1e-5)
 runner = dict(type='EpochBasedRunner', max_epochs=20)
-
-load_from = "https://download.openmmlab.com/mmdetection/v2.0/vfnet/vfnet_r50_fpn_1x_coco/vfnet_r50_fpn_1x_coco_20201027-38db6f58.pth"
