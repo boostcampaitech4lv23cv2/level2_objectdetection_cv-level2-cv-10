@@ -5,8 +5,8 @@ img_norm_cfg = dict(
     mean=[123.675, 116.28, 103.53], std=[58.395, 57.12, 57.375], to_rgb=True)
 classes = ("General trash", "Paper", "Paper pack", "Metal", "Glass", 
            "Plastic", "Styrofoam", "Plastic bag", "Battery", "Clothing")
-min_size, max_size = 512, 1024
-multi_scale = [(x, x) for x in range(min_size, max_size+1, 64)]
+min_size, max_size = 768, 1024
+multi_scale = [(x, x) for x in range(min_size, max_size+1, 128)]
 multi_scale_l = [(512, 512), (768, 768), (1024, 1024)]
 albu_train_transforms=[
     dict(
@@ -30,9 +30,17 @@ albu_train_transforms=[
             dict(type='ChannelShuffle', p=0.5)
         ],
         p=0.5),
+    dict(
+        type='OneOf',
+        transforms=[
+            dict(type='Sharpen', p=1.0),
+            dict(type='Emboss', p=1.0)
+        ],
+        p=0.5),
     dict(type='CLAHE',p=0.5),
     dict(type='HueSaturationValue', hue_shift_limit=15, sat_shift_limit=25, val_shift_limit=10, p=0.5),
     dict(type='GaussNoise', p=0.3),
+    dict(type='ToGray', p=0.5),
     dict(
         type='OneOf',
         transforms=[
@@ -51,7 +59,7 @@ albu_train_transforms=[
 train_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(type='LoadAnnotations', with_bbox=True),
-    dict(type='Resize', img_scale=multi_scale_l, multiscale_mode='value', keep_ratio=True),
+    dict(type='Resize', img_scale=multi_scale, multiscale_mode='value', keep_ratio=True),
     dict(type='Pad', size_divisor=32),
     dict(
         type='Albu',
@@ -83,10 +91,10 @@ test_pipeline = [
     dict(type='LoadImageFromFile'),
     dict(
         type='MultiScaleFlipAug',
-        img_scale=multi_scale_l,
+        img_scale=(1024, 1024),
         flip=False,
         transforms=[
-            dict(type='Resize', img_scale=multi_scale_l, multiscale_mode='value', keep_ratio=True),
+            dict(type='Resize', keep_ratio=True),
             dict(type='RandomFlip'),
             dict(type='Normalize', **img_norm_cfg),
             dict(type='Pad', size_divisor=32),
@@ -100,13 +108,13 @@ data = dict(
     workers_per_gpu=2,
     train=dict(
         type=dataset_type,
-        ann_file=data_root + 'train_new.json',
+        ann_file=data_root + 'fold_4_train.json',
         img_prefix=data_root,
         classes=classes,
         pipeline=train_pipeline),
     val=dict(
         type=dataset_type,
-        ann_file=data_root + 'fold_0_val.json',
+        ann_file=data_root + 'fold_4_val.json',
         img_prefix=data_root,
         classes=classes,
         pipeline=test_pipeline),

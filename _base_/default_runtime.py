@@ -9,8 +9,8 @@ log_config = dict(
         dict(type='WandbLoggerHook',
          init_kwargs={
             'project': 'mmdetection',
-            'entity': 'godkimyoungju',
-            'name': 'swin'
+            'entity': 'godkym',
+            'name': 'cascade_swin_l'
             }
         )
     ])
@@ -19,7 +19,8 @@ custom_hooks = [dict(type='NumClassCheckHook')]
 
 dist_params = dict(backend='nccl')
 log_level = 'INFO'
-load_from = None
+load_from = '/opt/ml/baseline/UniverseNet/configs/_trash_/pretrained/cascade_rcnn_r50_fpn_1x_coco_20200316-3dc56deb.pth'
+# load_from = '/opt/ml/baseline/UniverseNet/configs/_trash_/pretrained/best_bbox_mAP_epoch_12.pth'
 resume_from = None
 workflow = [('train', 1)]
 
