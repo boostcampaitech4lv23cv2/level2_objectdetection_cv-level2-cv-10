@@ -1,5 +1,5 @@
 import wandb
-checkpoint_config = dict(interval=3)
+checkpoint_config = dict(interval=6)
 # yapf:disable
 log_config = dict(
     interval=50,
@@ -10,7 +10,7 @@ log_config = dict(
             init_kwargs={
                 'project': 'mmdetection',
                 'entity': 'godkym',
-                'name': 'cascade_rcnn_convnext-s_fpn_aug_v2_3x_pre_nb'
+                'name': 'cascade_rcnn_convnext-s_fpn_aug_v3_ms_3x_pre_nb'
             },
             log_checkpoint=True,
             log_checkpoint_metadata=True,
